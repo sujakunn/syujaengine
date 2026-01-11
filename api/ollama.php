@@ -1,22 +1,22 @@
 <?php
-require_once '../config/config.php';
+// Pengaturan Koneksi
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'rag_db');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
-$input = json_decode(file_get_contents("php://input"), true);
-$prompt = $input['prompt'] ?? '';
+// Pengaturan Ollama
+define('OLLAMA_BASE_URL', 'http://localhost:11434/api');
+define('CHAT_MODEL', 'llama3');
+define('EMBED_MODEL', 'nomic-embed-text');
 
-$data = [
-    "model" => OLLAMA_MODEL,
-    "prompt" => $prompt,
-    "stream" => false
-];
-
-$ch = curl_init(OLLAMA_URL);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-$response = curl_exec($ch);
-curl_close($ch);
-
-echo $response;
+// Fungsi Koneksi PDO Global
+function getDB() {
+    try {
+        $pdo = new PDO("mysql:host=".DB_HOST.";dbname=".DB_NAME, DB_USER, DB_PASS);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $pdo;
+    } catch (PDOException $e) {
+        die("Koneksi Gagal: " . $e->getMessage());
+    }
+}
